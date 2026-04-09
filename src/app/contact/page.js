@@ -1,18 +1,34 @@
 'use client';
 import { useState } from 'react';
 
+import { db } from "../../../firebase";
+import { collection, addDoc } from "firebase/firestore";
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulate sending
-    setTimeout(() => {
-      setSubmitted(true);
-      setFormData({ name: '', email: '', message: '' });
-    }, 1000);
-  };
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+   console.log("FORM SUBMITTED");
+
+  try {
+    await addDoc(collection(db, "messages"), {
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+      createdAt: new Date()
+    });
+
+    console.log("Data saved to Firebase");
+
+    setSubmitted(true);
+    setFormData({ name: '', email: '', message: '' });
+
+  } catch (error) {
+    console.error("Error saving data:", error);
+  }
+};
 
   return (
     <div className="container" style={{ padding: '60px 24px', maxWidth: '800px' }}>
@@ -38,10 +54,11 @@ export default function ContactPage() {
               <label className="label">Name</label>
               <input 
                 type="text" 
-                className="input-field" 
-                placeholder="John Doe"
+                className="input-field"
+                placeholder="Herry desai"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => 
+                  setFormData({ ...formData, name: e.target.value })}
                 required 
               />
             </div>
@@ -49,10 +66,11 @@ export default function ContactPage() {
               <label className="label">Email</label>
               <input 
                 type="email" 
-                className="input-field" 
-                placeholder="john@example.com"
+                className="input-field"               
+                placeholder="herry@example.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => 
+                  setFormData({ ...formData, email: e.target.value })}
                 required 
               />
             </div>
@@ -63,7 +81,8 @@ export default function ContactPage() {
                 placeholder="How can we help?"
                 rows="6"
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) => 
+                  setFormData({ ...formData, message: e.target.value })}
                 required
               />
             </div>
